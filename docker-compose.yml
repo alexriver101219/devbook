@@ -1,0 +1,44 @@
+services:
+  web:
+    image: nginx:alpine
+    container_name: devbook-app
+    ports:
+      - "8085:80"
+    volumes:
+      - .:/usr/share/nginx/html
+    restart: always
+
+  backend:
+    image: node:18-alpine
+    container_name: devbook-backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: devbook_user
+      DB_PASSWORD: devbook_password
+      DB_NAME: devbook_db
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mysql:8.0
+    container_name: devbook-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: devbook_db
+      MYSQL_USER: devbook_user
+      MYSQL_PASSWORD: devbook_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
