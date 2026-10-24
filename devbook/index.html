@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBook - Plataforma para Desarrolladores</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+        }
+        /* Header & Navbar */
+        header {
+            background-color: #0f172a;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo span {
+            color: #2563eb;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        .btn-outline {
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            background: transparent;
+        }
+        .btn-outline:hover {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 5rem 2rem;
+        }
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .badge {
+            display: inline-block;
+            background-color: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.2rem;
+        }
+        .hero p {
+            color: #94a3b8;
+            font-size: 1.15rem;
+            margin-bottom: 2rem;
+        }
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Preview Card */
+        .preview-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .preview-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .sample-dialog {
+            width: min(720px, calc(100% - 2rem));
+            max-height: 85vh;
+            padding: 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            color: #0f172a;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+        }
+        .sample-dialog::backdrop {
+            background: rgba(15, 23, 42, 0.75);
+        }
+        .sample-dialog-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        .sample-dialog h2 {
+            margin-bottom: 0.5rem;
+        }
+        .sample-dialog p {
+            margin-bottom: 1rem;
+            color: #475569;
+        }
+        .sample-dialog h3 {
+            margin: 1.5rem 0 0.5rem;
+        }
+        .sample-dialog-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .sample-dialog .btn-close {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* Features Section */
+        .features {
+            max-width: 1200px;
+            margin: 5rem auto;
+            padding: 0 2rem;
+        }
+        .features-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .features-header h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .features-header p {
+            color: #64748b;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .card h3 {
+            margin-bottom: 0.8rem;
+            font-size: 1.25rem;
+        }
+        .card p {
+            color: #64748b;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #0f172a;
+            color: #64748b;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 5rem;
+            border-top: 1px solid #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navegación Principal con Login y Registro -->
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">&lt;/&gt; Dev<span>Book</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#beneficios">Beneficios</a></li>
+                    <li><a href="#contenido">Contenido</a></li>
+                    <li><a href="#autor">Autor</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-outline">Iniciar Sesión</a>
+                <a href="register.html" class="btn btn-primary">Registrarse</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div>
+                <span class="badge">Edición 2026 Actualizada</span>
+                <h1>Aprende a construir software profesional paso a paso</h1>
+                <p>La guía práctica indispensable para desarrolladores que buscan dominar arquitectura, buenas prácticas y despliegue continuo de aplicaciones modernas.</p>
+                <div class="hero-cta">
+                    <a href="register.html" class="btn btn-primary" style="padding: 0.8rem 1.8rem; font-size: 1.05rem;">Comprar versión digital</a>
+                    <button type="button" id="open-sample" class="btn btn-outline" style="padding: 0.8rem 1.8rem; font-size: 1.05rem;">Ver muestra gratis</button>
+                </div>
+            </div>
+            <div>
+                <div class="preview-card">
+                    <div class="preview-icon">📘</div>
+                    <h3 style="color: #ffffff; margin-bottom: 0.5rem;">DevBook Ecosystem</h3>
+                    <p style="color: #94a3b8; font-size: 0.95rem;">Disponible en formato PDF, EPUB y acceso a repositorios en la nube.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Beneficios -->
+    <section id="beneficios" class="features">
+        <div class="features-header">
+            <h2>Lo que aprenderás con DevBook</h2>
+            <p>Diseñado para acelerar tu carrera técnica con conceptos clave explicados de manera sencilla.</p>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">🏛️</div>
+                <h3>Arquitectura Limpia</h3>
+                <p>Estructura aplicaciones escalables y mantenibles aplicando patrones de diseño modernos.</p>
+            </div>
+            <div class="card">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">🌿</div>
+                <h3>Control de Versiones</h3>
+                <p>Flujos de trabajo avanzados con Git, GitHub Actions y pipelines de integración continua.</p>
+            </div>
+            <div class="card">
+                <div style="font-size: 2rem; margin-bottom: 1rem;">🗄️</div>
+                <h3>Bases de Datos</h3>
+                <p>Diseño relacional eficiente, optimización de consultas SQL y modelado de datos.</p>
+            </div>
+        </div>
+    </section>
+
+    <dialog id="sample-dialog" class="sample-dialog" aria-labelledby="sample-title">
+        <div class="sample-dialog-content">
+            <h2 id="sample-title">Muestra gratis de DevBook</h2>
+            <p>Explora un adelanto de la guia: fundamentos practicos para construir software mantenible y listo para crecer.</p>
+
+            <h3>1. Arquitectura limpia: separa para avanzar</h3>
+            <p>Una buena arquitectura mantiene las reglas del negocio independientes de los detalles tecnicos. La interfaz, la base de datos y los servicios externos pueden cambiar sin obligarte a reescribir el nucleo de la aplicacion.</p>
+            <p>Empieza identificando responsabilidades: presenta la informacion, coordina los casos de uso y aplica las reglas del dominio. Mantener esas piezas separadas hace que el codigo sea mas facil de probar y modificar.</p>
+
+            <h3>2. Un flujo de trabajo seguro con Git</h3>
+            <p>Trabaja en ramas pequenas y describe cada cambio con commits claros. Antes de integrar una rama, ejecuta las pruebas y revisa el diff. La integracion continua automatiza esos pasos para detectar errores cuanto antes.</p>
+            <p>Un flujo simple puede ser: crear una rama desde la principal, implementar una tarea acotada, ejecutar las pruebas, solicitar revision y fusionar solo cuando las verificaciones pasan.</p>
+
+            <h3>3. Datos confiables y despliegues repetibles</h3>
+            <p>Modela los datos alrededor de las necesidades del negocio. Usa claves y restricciones para proteger su integridad, y agrega indices cuando las consultas frecuentes lo requieran. Mide antes de optimizar.</p>
+            <p>Finalmente, automatiza el despliegue en etapas: valida, prueba y publica el mismo artefacto. Configura secretos fuera del codigo y conserva una forma de volver a la version anterior si algo falla.</p>
+
+            <div class="sample-dialog-actions">
+                <button type="button" id="download-sample" class="btn btn-primary">Descargar muestra en PDF</button>
+                <button type="button" id="close-sample" class="btn btn-close">Cerrar</button>
+            </div>
+        </div>
+    </dialog>
+
+    <footer>
+        <p>&copy; 2026 DevBook. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        const sampleDialog = document.getElementById('sample-dialog');
+        document.getElementById('open-sample').addEventListener('click', () => sampleDialog.showModal());
+        document.getElementById('close-sample').addEventListener('click', () => sampleDialog.close());
+        document.getElementById('download-sample').addEventListener('click', () => {
+            const pages = [
+                [
+                    { size: 12, text: 'DEVBOOK | MUESTRA GRATIS' },
+                    { size: 24, text: 'Construye software profesional' },
+                    { size: 15, text: 'Una guia practica para desarrolladores' },
+                    { size: 11, text: '' },
+                    { size: 12, text: 'En esta muestra:' },
+                    { size: 11, text: '1. Arquitectura limpia y codigo mantenible' },
+                    { size: 11, text: '2. Un flujo de trabajo seguro con Git' },
+                    { size: 11, text: '3. Datos confiables y despliegues repetibles' },
+                    { size: 11, text: '' },
+                    { size: 11, text: 'Edicion 2026 | DevBook' }
+                ],
+                [
+                    { size: 18, text: '1. Arquitectura limpia: separa para avanzar' },
+                    { size: 11, text: '' },
+                    { size: 11, text: 'Una buena arquitectura mantiene las reglas del negocio' },
+                    { size: 11, text: 'independientes de los detalles tecnicos. La interfaz, la' },
+                    { size: 11, text: 'base de datos y los servicios externos pueden cambiar' },
+                    { size: 11, text: 'sin obligarte a reescribir el nucleo de la aplicacion.' },
+                    { size: 11, text: '' },
+                    { size: 11, text: 'Empieza identificando responsabilidades: presenta la' },
+                    { size: 11, text: 'informacion, coordina los casos de uso y aplica las' },
+                    { size: 11, text: 'reglas del dominio. Mantener esas piezas separadas hace' },
+                    { size: 11, text: 'que el codigo sea mas facil de probar y modificar.' },
+                    { size: 11, text: '' },
+                    { size: 13, text: 'Una regla practica' },
+                    { size: 11, text: 'Las decisiones del negocio no deben depender de una' },
+                    { size: 11, text: 'base de datos, un framework o una pantalla especifica.' }
+                ],
+                [
+                    { size: 18, text: '2. Git, datos y despliegues' },
+                    { size: 11, text: '' },
+                    { size: 14, text: 'Un flujo de trabajo seguro con Git' },
+                    { size: 11, text: 'Trabaja en ramas pequenas y describe cada cambio con' },
+                    { size: 11, text: 'commits claros. Antes de integrar, ejecuta las pruebas' },
+                    { size: 11, text: 'y revisa el diff. La integracion continua automatiza' },
+                    { size: 11, text: 'esos pasos para detectar errores cuanto antes.' },
+                    { size: 11, text: '' },
+                    { size: 14, text: 'Datos confiables y despliegues repetibles' },
+                    { size: 11, text: 'Modela los datos alrededor de las necesidades del' },
+                    { size: 11, text: 'negocio. Usa claves y restricciones para proteger su' },
+                    { size: 11, text: 'integridad; mide antes de optimizar las consultas.' },
+                    { size: 11, text: '' },
+                    { size: 11, text: 'Automatiza el despliegue: valida, prueba y publica el' },
+                    { size: 11, text: 'mismo artefacto. Guarda secretos fuera del codigo y' },
+                    { size: 11, text: 'prepara una forma de volver a la version anterior.' },
+                    { size: 11, text: '' },
+                    { size: 11, text: 'Fin de la muestra | DevBook - Edicion 2026' }
+                ]
+            ];
+            const escapePdfText = text => text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+            const objects = [
+                '<< /Type /Catalog /Pages 2 0 R >>',
+                `<< /Type /Pages /Kids [${pages.map((_, index) => `${4 + index * 2} 0 R`).join(' ')}] /Count ${pages.length} >>`,
+                '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'
+            ];
+
+            pages.forEach((lines, index) => {
+                const pageObject = 4 + index * 2;
+                const streamObject = pageObject + 1;
+                const commands = lines.map((line, lineIndex) =>
+                    `BT /F1 ${line.size} Tf 50 ${740 - lineIndex * 34} Td (${escapePdfText(line.text)}) Tj ET`
+                ).join('\n');
+                objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents ${streamObject} 0 R >>`);
+                objects.push(`<< /Length ${commands.length} >>\nstream\n${commands}\nendstream`);
+            });
+
+            let pdf = '%PDF-1.4\n';
+            const offsets = [0];
+            objects.forEach((object, index) => {
+                offsets.push(pdf.length);
+                pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+            });
+            const xrefOffset = pdf.length;
+            pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+            offsets.slice(1).forEach(offset => {
+                pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
+            });
+            pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+
+            const pdfUrl = URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' }));
+            const downloadLink = document.createElement('a');
+            downloadLink.href = pdfUrl;
+            downloadLink.download = 'devbook-muestra-gratis.pdf';
+            downloadLink.click();
+            setTimeout(() => URL.revokeObjectURL(pdfUrl), 1000);
+        });
+    </script>
+</body>
+</html>
