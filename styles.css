@@ -1,0 +1,67 @@
+:root {
+  --primary-color: #0d6efd;
+  --dark-bg: #111827;
+  --card-bg: #1f2937;
+  --text-light: #f9fafb;
+  --text-muted: #9ca3af;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Navbar */
+.header {
+  background-color: var(--dark-bg);
+  border-bottom: 1px solid #374151;
+}
+
+.logo-text {
+  color: var(--text-light) !important;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: var(--text-light);
+  padding: 4rem 0;
+}
+
+.hero-section h1 {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.hero-section p {
+  color: var(--text-muted);
+}
+
+/* Tarjetas y Secciones */
+.card {
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.2s ease, shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.bg-light-custom {
+  background-color: #f1f5f9;
+}
+
+/* Botones */
+.btn-primary {
+  background-color: var(--primary-color);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+}
