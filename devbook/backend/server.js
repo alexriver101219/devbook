@@ -31,6 +31,20 @@ const db = mysql.createPool({
     database: process.env.DB_NAME
 });
 
+const requiredDatabaseSettings = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+
+function getMissingDatabaseSettings() {
+    return requiredDatabaseSettings.filter(name => !process.env[name] || !process.env[name].trim());
+}
+
+function logDatabaseError(context, error) {
+    console.error(`${context} database error:`, {
+        code: error.code || 'UNKNOWN',
+        syscall: error.syscall || 'unknown',
+        environment: process.env.VERCEL ? 'vercel' : 'local'
+    });
+}
+
 const product = {
     id: 'guia-analisis-desarrollo-software',
     title: 'Guía profesional de análisis y desarrollo de software',
@@ -121,7 +135,10 @@ function requireSession(req, res, next) {
     if (!userId) return res.status(401).json({ error: 'Inicia sesión para continuar' });
 
     db.query('SELECT id, correo FROM usuarios WHERE id = ?', [userId], (err, results) => {
-        if (err) return res.status(500).json({ error: 'No se pudo validar la sesión' });
+        if (err) {
+            logDatabaseError('Session validation', err);
+            return res.status(500).json({ error: 'No se pudo validar la sesión' });
+        }
         if (results.length === 0) return res.status(401).json({ error: 'La sesión ya no es válida' });
         req.user = results[0];
         next();
@@ -278,7 +295,7 @@ app.post('/api/register', async (req, res) => {
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(400).json({ error: 'El correo ya está registrado' });
                 }
-                console.error('Registration database error:', err.code || err.message);
+                logDatabaseError('Registration', err);
                 return res.status(500).json({ error: 'Error en la base de datos' });
             }
             res.json({ message: 'Usuario registrado exitosamente' });
@@ -293,10 +310,25 @@ app.post('/api/login', (req, res) => {
     if (typeof correo !== 'string' || typeof password !== 'string' || !correo || !password) {
         return res.status(400).json({ error: 'Correo y contraseña son requeridos' });
     }
+    const missingDatabaseSettings = getMissingDatabaseSettings();
+    if (missingDatabaseSettings.length > 0) {
+        console.error('Login database configuration is incomplete:', {
+            missing: missingDatabaseSettings,
+            environment: process.env.VERCEL ? 'vercel' : 'local'
+        });
+        return res.status(503).json({
+            error: 'La base de datos no está configurada. Revisa las variables DB_HOST, DB_PORT, DB_USER, DB_PASSWORD y DB_NAME del entorno.'
+        });
+    }
 
     const sql = 'SELECT * FROM usuarios WHERE correo = ?';
     db.query(sql, [correo], async (err, results) => {
-        if (err) return res.status(500).json({ error: 'Error en la base de datos' });
+        if (err) {
+            logDatabaseError('Login', err);
+            return res.status(500).json({
+                error: 'No se pudo conectar con la base de datos. Verifica que MySQL sea accesible desde Vercel y que las credenciales y permisos estén vigentes.'
+            });
+        }
         if (results.length === 0) return res.status(401).json({ error: 'Usuario no encontrado' });
 
         const user = results[0];
