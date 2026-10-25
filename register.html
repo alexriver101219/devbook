@@ -50,10 +50,10 @@
             }
 
             try {
-                const res = await fetch('http://localhost:3000/api/register', {
+                const res = await fetch('http://localhost:5000/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ correo: email, password })
                 });
 
                 const data = await res.json();
@@ -70,7 +70,7 @@
                 }
             } catch (err) {
                 alertBox.className = 'alert alert-danger';
-                alertBox.textContent = 'No se pudo conectar con el servidor backend (puerto 3000)';
+                alertBox.textContent = 'No se pudo conectar con el servidor backend (puerto 5000)';
                 alertBox.classList.remove('d-none');
             }
         });

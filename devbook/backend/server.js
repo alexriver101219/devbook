@@ -1,3 +1,5 @@
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -8,20 +10,21 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createPool({
-    host: process.env.DB_HOST || 'db',
-    user: process.env.DB_USER || 'devbook_user',
-    password: process.env.DB_PASSWORD || 'devbook_password',
-    database: process.env.DB_NAME || 'devbook_db'
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 3306),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
 app.post('/api/register', async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Campos requeridos' });
+    const { correo, password } = req.body;
+    if (!correo || !password) return res.status(400).json({ error: 'Campos requeridos' });
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const sql = 'INSERT INTO usuarios (email, password) VALUES (?, ?)';
-        db.query(sql, [email, hashedPassword], (err, result) => {
+        const sql = 'INSERT INTO usuarios (correo, password) VALUES (?, ?)';
+        db.query(sql, [correo, hashedPassword], (err, result) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(400).json({ error: 'El correo ya está registrado' });
@@ -36,11 +39,11 @@ app.post('/api/register', async (req, res) => {
 });
 
 app.post('/api/login', (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Campos requeridos' });
+    const { correo, password } = req.body;
+    if (!correo || !password) return res.status(400).json({ error: 'Campos requeridos' });
 
-    const sql = 'SELECT * FROM usuarios WHERE email = ?';
-    db.query(sql, [email], async (err, results) => {
+    const sql = 'SELECT * FROM usuarios WHERE correo = ?';
+    db.query(sql, [correo], async (err, results) => {
         if (err) return res.status(500).json({ error: 'Error en la base de datos' });
         if (results.length === 0) return res.status(401).json({ error: 'Usuario no encontrado' });
 
@@ -55,10 +58,15 @@ app.post('/api/login', (req, res) => {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
 
-        res.json({ message: 'Login exitoso', user: { id: user.id, email: user.email } });
+        res.json({ message: 'Login exitoso', user: { id: user.id, correo: user.correo } });
     });
 });
+app.get('/', (req, res) => {
+    res.send('✅ DevBook Backend funcionando');
+});
 
-app.listen(3000, () => {
-    console.log('Servidor Backend corriendo en el puerto 3000');
+const port = Number(process.env.PORT || 5000);
+
+app.listen(port, () => {
+    console.log(`Servidor Backend corriendo en el puerto ${port}`);
 });
