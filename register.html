@@ -16,6 +16,10 @@
 
             <form id="registerForm">
                 <div class="mb-3">
+                    <label for="name" class="form-label">Nombre</label>
+                    <input type="text" id="name" class="form-control bg-dark text-white border-secondary" placeholder="Tu nombre" required maxlength="100">
+                </div>
+                <div class="mb-3">
                     <label for="email" class="form-label">Correo Electrónico</label>
                     <input type="email" id="email" class="form-control bg-dark text-white border-secondary" placeholder="ejemplo@correo.com" required>
                 </div>
@@ -37,10 +41,14 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const nombre = document.getElementById('name').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const alertBox = document.getElementById('alert-box');
+            const apiBaseUrl = window.location.protocol === 'https:'
+                ? ''
+                : `http://${window.location.hostname || 'localhost'}:5000`;
 
             if (password !== confirmPassword) {
                 alertBox.className = 'alert alert-warning';
@@ -50,10 +58,11 @@
             }
 
             try {
-                const res = await fetch('http://localhost:5000/api/register', {
+                const res = await fetch(`${apiBaseUrl}/api/register`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ correo: email, password })
+                    body: JSON.stringify({ nombre, correo: email, password })
                 });
 
                 const data = await res.json();
@@ -70,7 +79,7 @@
                 }
             } catch (err) {
                 alertBox.className = 'alert alert-danger';
-                alertBox.textContent = 'No se pudo conectar con el servidor backend (puerto 5000)';
+                alertBox.textContent = 'No se pudo conectar con el servidor backend.';
                 alertBox.classList.remove('d-none');
             }
         });

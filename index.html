@@ -10,6 +10,9 @@
             margin: 0;
             padding: 0;
         }
+        [hidden] {
+            display: none !important;
+        }
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background-color: #f8fafc;
@@ -250,8 +253,10 @@
                 </ul>
             </nav>
             <div class="auth-buttons">
-                <a href="login.html" class="btn btn-outline">Iniciar Sesión</a>
-                <a href="register.html" class="btn btn-primary">Registrarse</a>
+                <a href="login.html" id="sign-in-link" class="btn btn-outline">Iniciar Sesión</a>
+                <a href="register.html" id="register-link" class="btn btn-primary">Registrarse</a>
+                <span id="account-email" hidden></span>
+                <button type="button" id="logout-button" class="btn btn-outline" hidden>Cerrar sesión</button>
             </div>
         </div>
     </header>
@@ -261,10 +266,10 @@
         <div class="hero-container">
             <div>
                 <span class="badge">Edición 2026 Actualizada</span>
-                <h1>Aprende a construir software profesional paso a paso</h1>
-                <p>La guía práctica indispensable para desarrolladores que buscan dominar arquitectura, buenas prácticas y despliegue continuo de aplicaciones modernas.</p>
+                <h1>Pasa de una idea a un producto de software confiable</h1>
+                <p>Aprende a analizar necesidades, definir requisitos, diseñar bases de datos y APIs, probar, proteger y desplegar software con buenas prácticas.</p>
                 <div class="hero-cta">
-                    <a href="register.html" class="btn btn-primary" style="padding: 0.8rem 1.8rem; font-size: 1.05rem;">Comprar versión digital</a>
+                    <a href="#buy-book" class="btn btn-primary" style="padding: 0.8rem 1.8rem; font-size: 1.05rem;">Comprar versión digital</a>
                     <button type="button" id="open-sample" class="btn btn-outline" style="padding: 0.8rem 1.8rem; font-size: 1.05rem;">Ver muestra gratis</button>
                 </div>
             </div>
@@ -272,9 +277,30 @@
                 <div class="preview-card">
                     <div class="preview-icon">📘</div>
                     <h3 style="color: #ffffff; margin-bottom: 0.5rem;">DevBook Ecosystem</h3>
-                    <p style="color: #94a3b8; font-size: 0.95rem;">Disponible en formato PDF, EPUB y acceso a repositorios en la nube.</p>
+                    <p style="color: #94a3b8; font-size: 0.95rem;">Una guía digital en PDF con capítulos prácticos, diagramas, ejemplos, ejercicios y plantillas listas para adaptar.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section id="buy-book" class="features">
+        <div class="features-header">
+            <h2>Construye software con método, de principio a fin</h2>
+            <p>Una ruta práctica para convertir problemas reales en productos confiables, seguros y mantenibles.</p>
+        </div>
+        <div class="card" style="max-width: 760px; margin: 0 auto;">
+            <h3>Análisis y desarrollo de software</h3>
+            <p>Incluye 20 capítulos con diagramas visuales, ejemplos y ejercicios sobre análisis, requisitos, experiencia de usuario, arquitectura, datos, APIs, pruebas, seguridad, rendimiento, despliegues y operación. También contiene un proyecto integrador y plantillas prácticas para adaptar a tus propios proyectos.</p>
+            <p style="margin: 1rem 0;"><strong>Precio: $39.900 COP</strong></p>
+            <p id="purchase-message" role="status" aria-live="polite">Crea una cuenta o inicia sesión para asociar tu compra y acceder a la guía desde tu perfil.</p>
+            <div class="hero-cta" style="margin-top: 1rem;">
+                <a id="purchase-register" href="register.html" class="btn btn-primary">Crear cuenta y continuar</a>
+                <a id="purchase-login" href="login.html" class="btn btn-outline">Ya tengo cuenta: iniciar sesión</a>
+                <button type="button" id="purchase-button" class="btn btn-primary" hidden>Comprar con Mercado Pago</button>
+                <a id="download-book" class="btn btn-primary" href="#" hidden>Descargar guía PDF</a>
+                <button type="button" class="btn btn-outline sample-preview-button">Ver muestra gratis</button>
+            </div>
+            <p style="margin-top: 0.75rem; color: #64748b; font-size: 0.9rem;">La compra se vincula a tu cuenta para que puedas volver a iniciar sesión y descargar la guía. Por ahora no está disponible la compra como invitado.</p>
         </div>
     </section>
 
@@ -332,9 +358,85 @@
     </footer>
 
     <script>
+        const apiBaseUrl = window.location.protocol === 'https:'
+            ? ''
+            : `http://${window.location.hostname || 'localhost'}:5000`;
         const sampleDialog = document.getElementById('sample-dialog');
-        document.getElementById('open-sample').addEventListener('click', () => sampleDialog.showModal());
+        document.querySelectorAll('#open-sample, .sample-preview-button').forEach(button => {
+            button.addEventListener('click', () => sampleDialog.showModal());
+        });
         document.getElementById('close-sample').addEventListener('click', () => sampleDialog.close());
+        const purchaseMessage = document.getElementById('purchase-message');
+        const purchaseLogin = document.getElementById('purchase-login');
+        const purchaseButton = document.getElementById('purchase-button');
+        const downloadBook = document.getElementById('download-book');
+        const accountEmail = document.getElementById('account-email');
+        const logoutButton = document.getElementById('logout-button');
+
+        async function loadAccount() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/api/session`, { credentials: 'include' });
+                if (response.status === 401) return;
+                if (!response.ok) throw new Error('No se pudo consultar la sesión.');
+
+                const session = await response.json();
+                accountEmail.textContent = session.user.correo;
+                accountEmail.hidden = false;
+                logoutButton.hidden = false;
+                document.getElementById('sign-in-link').hidden = true;
+                document.getElementById('register-link').hidden = true;
+                document.getElementById('purchase-register').hidden = true;
+                purchaseLogin.hidden = true;
+
+                const statusResponse = await fetch(`${apiBaseUrl}/api/book/status`, { credentials: 'include' });
+                if (!statusResponse.ok) throw new Error('No se pudo consultar el acceso a la guía.');
+                const status = await statusResponse.json();
+                if (status.purchased) {
+                    purchaseMessage.textContent = 'Tu compra está confirmada. Ya puedes descargar la guía.';
+                    downloadBook.href = `${apiBaseUrl}/api/book/download`;
+                    downloadBook.hidden = false;
+                } else {
+                    purchaseMessage.textContent = status.sandbox
+                        ? 'Tu sesión está activa. El checkout está en modo de prueba; no se harán cobros reales.'
+                        : 'Tu sesión está activa. Completa el pago seguro para obtener acceso al PDF.';
+                    purchaseButton.hidden = false;
+                }
+            } catch (error) {
+                purchaseMessage.textContent = error.message;
+            }
+        }
+
+        purchaseButton.addEventListener('click', async () => {
+            purchaseButton.disabled = true;
+            purchaseMessage.textContent = 'Conectando con Mercado Pago...';
+            try {
+                const response = await fetch(`${apiBaseUrl}/api/book/checkout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'No se pudo iniciar el pago.');
+                window.location.assign(data.checkoutUrl);
+            } catch (error) {
+                purchaseMessage.textContent = error.message;
+                purchaseButton.disabled = false;
+            }
+        });
+
+        logoutButton.addEventListener('click', async () => {
+            logoutButton.disabled = true;
+            try {
+                const response = await fetch(`${apiBaseUrl}/api/logout`, { method: 'POST', credentials: 'include' });
+                if (!response.ok) throw new Error('No se pudo cerrar la sesión.');
+                window.location.reload();
+            } catch (error) {
+                purchaseMessage.textContent = error.message;
+                logoutButton.disabled = false;
+            }
+        });
+
+        loadAccount();
+
         document.getElementById('download-sample').addEventListener('click', () => {
             const pages = [
                 [

@@ -35,10 +35,14 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const alertBox = document.getElementById('alert-box');
+            const apiBaseUrl = window.location.protocol === 'https:'
+                ? ''
+                : `http://${window.location.hostname || 'localhost'}:5000`;
 
             try {
-                const res = await fetch('http://localhost:5000/api/login', {
+                const res = await fetch(`${apiBaseUrl}/api/login`, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ correo: email, password })
                 });
@@ -57,7 +61,7 @@
                 }
             } catch (err) {
                 alertBox.className = 'alert alert-danger';
-                alertBox.textContent = 'No se pudo conectar con el servidor backend (puerto 5000)';
+                alertBox.textContent = 'No se pudo conectar con el servidor backend.';
                 alertBox.classList.remove('d-none');
             }
         });
