@@ -23,13 +23,27 @@ app.use((req, res, next) => {
     next();
 });
 
+const useTidbVariables = Boolean(process.env.TIDB_HOST);
+const databaseConfig = useTidbVariables
+    ? {
+        host: process.env.TIDB_HOST,
+        port: Number(process.env.TIDB_PORT || 3306),
+        user: process.env.TIDB_USER,
+        password: process.env.TIDB_PASSWORD,
+        database: process.env.TIDB_DATABASE
+    }
+    : {
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT || 3306),
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME
+    };
+const useDatabaseSsl = process.env.DB_SSL === 'true' || useTidbVariables;
+
 const db = mysql.createPool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    ...(process.env.DB_SSL === 'true' && {
+    ...databaseConfig,
+    ...(useDatabaseSsl && {
         ssl: {
             minVersion: 'TLSv1.2',
             rejectUnauthorized: true
@@ -37,10 +51,17 @@ const db = mysql.createPool({
     })
 });
 
-const requiredDatabaseSettings = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const requiredDatabaseSettings = {
+    DB_HOST: databaseConfig.host,
+    DB_USER: databaseConfig.user,
+    DB_PASSWORD: databaseConfig.password,
+    DB_NAME: databaseConfig.database
+};
 
 function getMissingDatabaseSettings() {
-    return requiredDatabaseSettings.filter(name => !process.env[name] || !process.env[name].trim());
+    return Object.entries(requiredDatabaseSettings)
+        .filter(([, value]) => !value || !value.trim())
+        .map(([name]) => name);
 }
 
 function logDatabaseError(context, error) {
@@ -327,7 +348,7 @@ app.post('/api/login', (req, res) => {
             environment: process.env.VERCEL ? 'vercel' : 'local'
         });
         return res.status(503).json({
-            error: 'La base de datos no está configurada. Revisa las variables DB_HOST, DB_PORT, DB_USER, DB_PASSWORD y DB_NAME del entorno.'
+            error: 'La base de datos no está configurada. Revisa las variables DB_* o TIDB_* del entorno.'
         });
     }
 
