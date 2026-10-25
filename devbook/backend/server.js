@@ -39,7 +39,11 @@ const databaseConfig = useTidbVariables
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME
     };
-const useDatabaseSsl = process.env.DB_SSL === 'true' || useTidbVariables;
+const isTidbCloudHost = typeof databaseConfig.host === 'string'
+    && databaseConfig.host.toLowerCase().endsWith('.tidbcloud.com');
+const useDatabaseSsl = (process.env.DB_SSL || '').toLowerCase() === 'true'
+    || useTidbVariables
+    || isTidbCloudHost;
 
 const db = mysql.createPool({
     ...databaseConfig,
