@@ -44,8 +44,12 @@ function getMissingDatabaseSettings() {
 }
 
 function logDatabaseError(context, error) {
+    const message = error.sqlMessage || error.message || 'unknown';
     console.error(`${context} database error:`, {
         code: error.code || 'UNKNOWN',
+        errno: error.errno || 'unknown',
+        sqlState: error.sqlState || 'unknown',
+        message: message.slice(0, 300),
         syscall: error.syscall || 'unknown',
         environment: process.env.VERCEL ? 'vercel' : 'local'
     });
