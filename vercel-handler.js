@@ -1,4 +1,4 @@
-const app = require('./devbook/backend/server');
+const app = require('./backend/server');
 
 module.exports = path => (req, res) => {
     req.url = path;
