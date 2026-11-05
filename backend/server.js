@@ -10,10 +10,22 @@ const { renderEbook } = require('./ebook');
 
 const app = express();
 const appOrigin = process.env.APP_ORIGIN || 'http://localhost:8085';
+app.use((req, res, next) => {
+    res.set({
+        'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-PD3cvoL+rF/6OWPZotW9K6eTrez5rFR4BJBnV6kchrE=' 'sha256-Mk8YItBbIm+dPzlluYkbp7Mn2bapZIK67/mm0/cky1s=' 'sha256-OMBS7h1lD9xTGZojRuOTH2uyn+SSjSgc5qpdEeE+PfU=' 'sha256-98gu4M9M9Svnc+H62saBpqmBlkC+Wnr/2nsBlnB5JhM='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' http://localhost:5000 http://127.0.0.1:5000",
+        'Strict-Transport-Security': 'max-age=31536000',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY'
+    });
+    next();
+});
 app.use(cors({
     origin(origin, callback) {
-        const isLocalOrigin = origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
-        callback(null, !origin || origin === appOrigin || isLocalOrigin);
+        const isLocalOrigin = process.env.NODE_ENV !== 'production'
+            && origin
+            && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+        const allowedOrigin = origin && (origin === appOrigin || isLocalOrigin) ? origin : false;
+        callback(null, allowedOrigin);
     },
     credentials: true
 }));
@@ -578,9 +590,13 @@ app.get('/', (req, res) => {
 });
 
 app.use((error, req, res, next) => {
-    if (error.type !== 'entity.parse.failed') return next(error);
-    console.warn('Invalid JSON request body:', req.method, req.originalUrl);
-    res.status(400).json({ error: 'El cuerpo de la solicitud debe contener JSON válido.' });
+    if (error.type === 'entity.parse.failed') {
+        console.warn('Invalid JSON request body:', req.method, req.originalUrl);
+        return res.status(400).json({ error: 'El cuerpo de la solicitud debe contener JSON válido.' });
+    }
+    if (res.headersSent) return next(error);
+    console.error('Unhandled request error:', error);
+    res.status(500).json({ error: 'Ocurrió un error interno. Inténtalo más tarde.' });
 });
 
 module.exports = app;
