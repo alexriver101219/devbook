@@ -13,7 +13,11 @@ jobs:
       - name: Preparar carpeta para GitHub Pages
         run: |
           mkdir -p public
-          if [ -f "ZAP-Report-.html" ]; then
+          # Busca de forma flexible cualquier archivo HTML que empiece por ZAP
+          if ls ZAP*.html 1> /dev/null 2>&1; then
+            cp ZAP*.html public/index.html
+            echo "¡Reporte ZAP detectado y copiado con éxito!"
+          elif [ -f "ZAP-Report-.html" ]; then
             cp ZAP-Report-.html public/index.html
           else
             echo "<html><body><h1>No se encontró el archivo ZAP-Report-.html</h1></body></html>" > public/index.html
