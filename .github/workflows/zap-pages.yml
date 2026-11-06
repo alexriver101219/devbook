@@ -10,18 +10,17 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Preparar carpeta para GitHub Pages y buscar reporte
+      - name: Preparar carpeta para GitHub Pages desde backend
         run: |
           mkdir -p public
-          echo "--- Contenido de la carpeta backend ---"
-          ls -la backend/
-          
-          # Busca cualquier archivo HTML que empiece por zap o ZAP en backend y lo copia
-          if ls backend/[zZ][aA][pP]*.html 1> /dev/null 2>&1; then
-            cp backend/[zZ][aA][pP]*.html public/index.html
-            echo "¡Reporte encontrado y copiado exitosamente como index.html!"
+          if [ -f "backend/ZAP-Report-.html" ]; then
+            cp backend/ZAP-Report-.html public/index.html
+            echo "¡Reporte encontrado en backend y copiado con éxito!"
+          elif ls backend/ZAP*.html 1> /dev/null 2>&1; then
+            cp backend/ZAP*.html public/index.html
+            echo "¡Reporte ZAP con comodín encontrado en backend!"
           else
-            echo "<html><body><h1>Error: No se encontró ningún archivo ZAP en backend</h1></body></html>" > public/index.html
+            echo "<html><body><h1>No se encontró el archivo en backend</h1></body></html>" > public/index.html
           fi
 
       - name: Subir artefacto para GitHub Pages
