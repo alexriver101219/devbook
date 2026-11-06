@@ -13,14 +13,15 @@ jobs:
       - name: Preparar carpeta para GitHub Pages
         run: |
           mkdir -p public
-          # Busca de forma flexible cualquier archivo HTML que empiece por ZAP
-          if ls ZAP*.html 1> /dev/null 2>&1; then
-            cp ZAP*.html public/index.html
-            echo "¡Reporte ZAP detectado y copiado con éxito!"
-          elif [ -f "ZAP-Report-.html" ]; then
-            cp ZAP-Report-.html public/index.html
+          # Busca el reporte dentro de la carpeta backend/ de forma flexible
+          if [ -f "backend/ZAP-Report-.html" ]; then
+            cp backend/ZAP-Report-.html public/index.html
+            echo "¡Reporte encontrado en backend y copiado con éxito!"
+          elif ls backend/ZAP*.html 1> /dev/null 2>&1; then
+            cp backend/ZAP*.html public/index.html
+            echo "¡Reporte ZAP con comodín encontrado en backend!"
           else
-            echo "<html><body><h1>No se encontró el archivo ZAP-Report-.html</h1></body></html>" > public/index.html
+            echo "<html><body><h1>No se encontró el archivo ZAP-Report-.html en backend</h1></body></html>" > public/index.html
           fi
 
       - name: Subir artefacto para GitHub Pages
