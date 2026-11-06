@@ -17,38 +17,36 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Preparar informe ZAP
+      - name: Preparar informes ZAP y K6
         run: |
-          mkdir -p public
+          mkdir -p public/backend
 
           INFORME="2026-11-05-ZAP-Report-.html"
           RECURSOS="2026-11-05-ZAP-Report-"
 
           if [ ! -f "$INFORME" ]; then
-            echo "ERROR: No se encontró el HTML original."
+            echo "ERROR: No se encontro el HTML de ZAP."
             exit 1
           fi
 
           if [ ! -d "$RECURSOS" ]; then
-            echo "ERROR: No se encontró la carpeta de recursos."
+            echo "ERROR: No se encontro la carpeta de recursos ZAP."
             exit 1
           fi
 
           cp "$INFORME" public/index.html
           cp -R "$RECURSOS" public/
-          # Incluir el reporte K6 en GitHub Pages
-mkdir -p public/backend
 
-if [ ! -f backend/reporte_k6.html ]; then
-  echo "ERROR: No se encontró el reporte K6."
-  exit 1
-fi
+          echo "Reporte ZAP preparado correctamente."
 
-cp backend/reporte_k6.html public/backend/reporte_k6.html
+          if [ ! -f backend/reporte_k6.html ]; then
+            echo "ERROR: No se encontro el reporte K6."
+            exit 1
+          fi
 
-echo "Reporte K6 incluido correctamente."
+          cp backend/reporte_k6.html public/backend/reporte_k6.html
 
-          echo "Informe original preparado correctamente."
+          echo "Reporte K6 preparado correctamente."
 
       - name: Subir artefacto
         uses: actions/upload-pages-artifact@v3
