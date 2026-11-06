@@ -1,5 +1,5 @@
 
-name: Publicar Reporte OWASP ZAP
+name: Publicar Reporte Original OWASP ZAP
 
 on:
   workflow_dispatch:
@@ -21,16 +21,25 @@ jobs:
         run: |
           mkdir -p public
 
-          if [ ! -f "backend/ZAP-Report-.html" ]; then
-            echo "ERROR: No se encontró backend/ZAP-Report-.html"
+          INFORME="2026-11-05-ZAP-Report-.html"
+          RECURSOS="2026-11-05-ZAP-Report-"
+
+          if [ ! -f "$INFORME" ]; then
+            echo "ERROR: No se encontró el HTML original."
             exit 1
           fi
 
-          cp "backend/ZAP-Report-.html" public/index.html
+          if [ ! -d "$RECURSOS" ]; then
+            echo "ERROR: No se encontró la carpeta de recursos."
+            exit 1
+          fi
 
-          echo "Informe ZAP preparado correctamente."
+          cp "$INFORME" public/index.html
+          cp -R "$RECURSOS" public/
 
-      - name: Cargar artefacto de GitHub Pages
+          echo "Informe original preparado correctamente."
+
+      - name: Subir artefacto
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
@@ -44,6 +53,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Publicar informe
+      - name: Publicar GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
