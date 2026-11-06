@@ -36,6 +36,17 @@ jobs:
 
           cp "$INFORME" public/index.html
           cp -R "$RECURSOS" public/
+          # Incluir el reporte K6 en GitHub Pages
+mkdir -p public/backend
+
+if [ ! -f backend/reporte_k6.html ]; then
+  echo "ERROR: No se encontró el reporte K6."
+  exit 1
+fi
+
+cp backend/reporte_k6.html public/backend/reporte_k6.html
+
+echo "Reporte K6 incluido correctamente."
 
           echo "Informe original preparado correctamente."
 
