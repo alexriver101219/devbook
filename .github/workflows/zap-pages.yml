@@ -1,0 +1,35 @@
+name: Publicar Reporte OWASP ZAP
+
+on:
+  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub Actions
+
+jobs:
+  deploy_zap_report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Preparar carpeta para GitHub Pages
+        run: |
+          mkdir -p public
+          if [ -f "ZAP-Report-.html" ]; then
+            cp ZAP-Report-.html public/index.html
+          else
+            echo "<html><body><h1>No se encontró el archivo ZAP-Report-.html</h1></body></html>" > public/index.html
+          fi
+
+      - name: Subir artefacto para GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    needs: deploy_zap_report
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Desplegar en GitHub Pages
+        uses: actions/deploy-pages@v4
