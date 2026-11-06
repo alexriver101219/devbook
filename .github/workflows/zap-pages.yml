@@ -1,39 +1,49 @@
+
 name: Publicar Reporte OWASP ZAP
 
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  deploy_zap_report:
+  preparar_reporte:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout del código
+      - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Preparar carpeta para GitHub Pages desde backend
+      - name: Preparar informe ZAP
         run: |
           mkdir -p public
-          if [ -f "backend/ZAP-Report-.html" ]; then
-            cp backend/ZAP-Report-.html public/index.html
-            echo "¡Reporte encontrado en backend y copiado con éxito!"
-          elif ls backend/ZAP*.html 1> /dev/null 2>&1; then
-            cp backend/ZAP*.html public/index.html
-            echo "¡Reporte ZAP con comodín encontrado en backend!"
-          else
-            echo "<html><body><h1>No se encontró el archivo en backend</h1></body></html>" > public/index.html
+
+          if [ ! -f "backend/ZAP-Report-.html" ]; then
+            echo "ERROR: No se encontró backend/ZAP-Report-.html"
+            exit 1
           fi
 
-      - name: Subir artefacto para GitHub Pages
+          cp "backend/ZAP-Report-.html" public/index.html
+
+          echo "Informe ZAP preparado correctamente."
+
+      - name: Cargar artefacto de GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
-  deploy:
-    needs: deploy_zap_report
+  publicar:
+    needs: preparar_reporte
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - name: Desplegar en GitHub Pages
+      - name: Publicar informe
+        id: deployment
         uses: actions/deploy-pages@v4
