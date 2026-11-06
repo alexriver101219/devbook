@@ -1,5 +1,5 @@
 
-name: Publicar Reporte Original OWASP ZAP
+name: Publicar Reportes DevBook
 
 on:
   workflow_dispatch:
@@ -9,44 +9,102 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   preparar_reporte:
     runs-on: ubuntu-latest
-
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Preparar informes ZAP y K6
+      - name: Preparar reportes ZAP y K6
         run: |
+          set -e
           mkdir -p public/backend
 
           INFORME="2026-11-05-ZAP-Report-.html"
           RECURSOS="2026-11-05-ZAP-Report-"
 
-          if [ ! -f "$INFORME" ]; then
-            echo "ERROR: No se encontro el HTML de ZAP."
-            exit 1
-          fi
+          test -f "$INFORME"
+          test -d "$RECURSOS"
+          test -f backend/reporte_k6.html
 
-          if [ ! -d "$RECURSOS" ]; then
-            echo "ERROR: No se encontro la carpeta de recursos ZAP."
-            exit 1
-          fi
-
-          cp "$INFORME" public/index.html
+          cp "$INFORME" public/
           cp -R "$RECURSOS" public/
+          cp backend/reporte_k6.html public/backend/
 
-          echo "Reporte ZAP preparado correctamente."
+          cat > public/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>DevBook - Reportes de Calidad</title>
+            <style>
+              * { box-sizing: border-box; }
+              body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #f1f5f9;
+                font-family: Arial, sans-serif;
+                color: #1e293b;
+              }
+              main {
+                width: 90%;
+                max-width: 760px;
+                background: white;
+                padding: 42px;
+                border-radius: 18px;
+                box-shadow: 0 12px 40px #0001;
+                text-align: center;
+              }
+              h1 { color: #047857; }
+              .reportes {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 20px;
+                margin-top: 32px;
+              }
+              a {
+                display: block;
+                padding: 25px 15px;
+                background: #047857;
+                color: white;
+                border-radius: 12px;
+                text-decoration: none;
+                font-weight: bold;
+              }
+              a:hover { background: #065f46; }
+              small { color: #64748b; }
+            </style>
+          </head>
+          <body>
+            <main>
+              <h1>DevBook</h1>
+              <h2>Reportes de Calidad del Software</h2>
+              <p>Resultados de pruebas de rendimiento y seguridad.</p>
+              <div class="reportes">
+                <a href="./backend/reporte_k6.html">
+                  Reporte de Rendimiento K6
+                </a>
+                <a href="./2026-11-05-ZAP-Report-.html">
+                  Reporte de Seguridad OWASP ZAP
+                </a>
+              </div>
+              <p><small>Proyecto DevBook - SENA ADSO</small></p>
+            </main>
+          </body>
+          </html>
+          HTML
 
-          if [ ! -f backend/reporte_k6.html ]; then
-            echo "ERROR: No se encontro el reporte K6."
-            exit 1
-          fi
-
-          cp backend/reporte_k6.html public/backend/reporte_k6.html
-
-          echo "Reporte K6 preparado correctamente."
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Subir artefacto
         uses: actions/upload-pages-artifact@v3
@@ -56,7 +114,6 @@ jobs:
   publicar:
     needs: preparar_reporte
     runs-on: ubuntu-latest
-
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
